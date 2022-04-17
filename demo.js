@@ -1,47 +1,48 @@
-var fillInPage = (function() {
-  var updateCityText = function(geoipResponse) {
+const cityEl = document.getElementById('city')
+const zipcodeEl = document.getElementById('zipcode')
+const countryEl = document.getElementById('country')
+const continentEl = document.getElementById('continent')
 
-    /*
-     * It's possible that we won't have any names for this city.
-     * For language codes with a special character such as pt-BR,
-     * replace names.en with names['pt-BR'].
-    */
-    var cityName = geoipResponse.city.names.en || 'your city';
-    console.log('in here')
+var fillInPage = (function() {
+  var updateLocationText = function(geoipResponse) {
+    var cityName = geoipResponse.city.names.en || 'n/a'
     console.log(geoipResponse)
-    const zipcode = geoipResponse.postal.code
-    const country = geoipResponse.country.names.en
-    document.getElementById('city').innerHTML = cityName
-    document.getElementById('zipcode').textContent = zipcode
+    const zipcode = geoipResponse.postal.code || 'n/a'
+    const country = geoipResponse.country.names.en || 'n/a'
+    const continent = geoipResponse.continent.names.en || 'n/a'
+    cityEl.textContent = cityName
+    zipcodeEl.textContent = zipcode
+    continentEl.textContent = continent
+
     if (country === 'United States') {
-      document.getElementById('country').textContent = 'the ' + country
+      countryEl.textContent = 'the ' + country
     } else {
-      document.getElementById('country').textContent = country
+      countryEl.textContent = country
     }
   };
 
-
   var onSuccess = function(geoipResponse) {
-    updateCityText(geoipResponse);
+    updateLocationText(geoipResponse);
   };
 
-  // If we get an error, we will display an error message
   var onError = function(error) {
-    document.getElementById('city').innerHTML = 'an error!  Please try again..'
-    document.getElementById('zipcode').textContent = 'undetermined.'
-    document.getElementById('country').textContent = 'undetermined.'
+    cityEl.textContent = 'an error!  Please try again later...'
+    zipcodeEl.textContent = 'undetermined'
+    countryEl.textContent = 'undetermined'
+    continentEl.textContent = 'undetermined'
   };
 
   return function() {
     if (typeof geoip2 !== 'undefined') {
       geoip2.city(onSuccess, onError);
     } else {
-      document.getElementById('city').innerHTML = 'a browser that blocks GeoIP2 requests'
-      document.getElementById('zipcode').textContent = 'undetermined.'
-      document.getElementById('country').textContent = 'undetermined.'
+      cityEl.textContent = 'a browser that blocks GeoIP2 requests'
+      zipcodeEl.textContent = 'undetermined'
+      countryEl.textContent = 'undetermined'
+      continentEl.textContent = 'undetermined'
     }
   };
 }());
 
 window.addEventListener('load', fillInPage)
-// fillInPage();
+
